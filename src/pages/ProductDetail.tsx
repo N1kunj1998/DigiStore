@@ -95,7 +95,8 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     addToCart({
-      id: product._id,
+      id: `local_${Date.now()}`,
+      productId: product._id,
       title: product.title,
       price: product.price,
       image: product.image,

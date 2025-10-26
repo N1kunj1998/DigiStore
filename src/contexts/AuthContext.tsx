@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { apiService } from '../services/api';
+import React, { createContext, useContext, ReactNode } from 'react';
+import { useUser, useAuth as useClerkAuth } from '@clerk/clerk-react';
 import { toast } from 'sonner';
 
 interface User {
@@ -34,46 +34,26 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user: clerkUser, isLoaded } = useUser();
+  const { signOut } = useClerkAuth();
+
+  // Convert Clerk user to our User interface
+  const user: User | null = clerkUser ? {
+    id: clerkUser.id,
+    email: clerkUser.emailAddresses[0]?.emailAddress || '',
+    firstName: clerkUser.firstName || '',
+    lastName: clerkUser.lastName || '',
+    isActive: true,
+    lastLogin: clerkUser.lastSignInAt?.toISOString(),
+    createdAt: clerkUser.createdAt?.toISOString() || new Date().toISOString(),
+  } : null;
 
   const isAuthenticated = !!user;
-
-  // Check if user is logged in on app start
-  useEffect(() => {
-    const checkAuth = async () => {
-      if (apiService.isAuthenticated()) {
-        try {
-          const response = await apiService.getProfile();
-          if (response.status === 'success' && response.data?.user) {
-            setUser(response.data.user);
-          }
-        } catch (error) {
-          console.error('Auth check failed:', error);
-          apiService.clearToken();
-        }
-      }
-      setIsLoading(false);
-    };
-
-    checkAuth();
-  }, []);
+  const isLoading = !isLoaded;
 
   const login = async (email: string, password: string) => {
-    try {
-      const response = await apiService.login({ email, password });
-      
-      if (response.status === 'success' && response.data?.user) {
-        setUser(response.data.user);
-        toast.success('Login successful!');
-      } else {
-        throw new Error(response.message || 'Login failed');
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Login failed';
-      toast.error(errorMessage);
-      throw error;
-    }
+    // Clerk handles login through their components
+    toast.info('Please use the sign-in form below');
   };
 
   const register = async (userData: {
@@ -82,26 +62,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     firstName: string;
     lastName: string;
   }) => {
-    try {
-      const response = await apiService.register(userData);
-      
-      if (response.status === 'success' && response.data?.user) {
-        setUser(response.data.user);
-        toast.success('Registration successful!');
-      } else {
-        throw new Error(response.message || 'Registration failed');
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Registration failed';
-      toast.error(errorMessage);
-      throw error;
-    }
+    // Clerk handles registration through their components
+    toast.info('Please use the sign-up form below');
   };
 
-  const logout = () => {
-    setUser(null);
-    apiService.clearToken();
-    toast.success('Logged out successfully');
+  const logout = async () => {
+    try {
+      await signOut();
+      localStorage.removeItem('leadMagnetPopupSeen');
+      toast.success('Logged out successfully!');
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Logout failed');
+    }
   };
 
   const updateProfile = async (profileData: {
@@ -109,20 +82,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     lastName?: string;
     email?: string;
   }) => {
-    try {
-      const response = await apiService.updateProfile(profileData);
-      
-      if (response.status === 'success' && response.data?.user) {
-        setUser(response.data.user);
-        toast.success('Profile updated successfully!');
-      } else {
-        throw new Error(response.message || 'Profile update failed');
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Profile update failed';
-      toast.error(errorMessage);
-      throw error;
-    }
+    // Clerk handles profile updates through their components
+    toast.info('Please use Clerk\'s profile management');
   };
 
   return (

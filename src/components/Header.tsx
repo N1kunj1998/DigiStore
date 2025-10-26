@@ -1,4 +1,4 @@
-import { ShoppingCart, Menu, X, Search, User, LogOut } from "lucide-react";
+import { ShoppingCart, Menu, X, Search, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "./AuthModal";
+import { UserButton } from "@clerk/clerk-react";
 import { useState } from "react";
 
 export const Header = () => {
@@ -84,10 +85,16 @@ export const Header = () => {
               <span className="hidden sm:inline text-sm text-muted-foreground">
                 Welcome, {user?.firstName}
               </span>
-              <Button variant="ghost" size="sm" onClick={logout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
+              <UserButton 
+                appearance={{
+                  elements: {
+                    avatarBox: "h-8 w-8",
+                    userButtonPopoverCard: "shadow-lg border",
+                    userButtonPopoverActionButton: "hover:bg-gray-50",
+                  }
+                }}
+                afterSignOutUrl="/"
+              />
             </div>
           ) : (
             <Button variant="ghost" size="sm" onClick={() => setIsAuthModalOpen(true)}>
@@ -172,15 +179,18 @@ export const Header = () => {
                   <p className="text-sm text-muted-foreground">
                     Welcome, {user?.firstName}
                   </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => { logout(); closeMobileMenu(); }}
-                    className="w-full"
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
-                  </Button>
+                  <div className="flex justify-center">
+                    <UserButton 
+                      appearance={{
+                        elements: {
+                          avatarBox: "h-8 w-8",
+                          userButtonPopoverCard: "shadow-lg border",
+                          userButtonPopoverActionButton: "hover:bg-gray-50",
+                        }
+                      }}
+                      afterSignOutUrl="/"
+                    />
+                  </div>
                 </div>
               ) : (
                 <Button 

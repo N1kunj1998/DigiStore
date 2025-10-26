@@ -3,12 +3,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { LeadCapture } from "./LeadCapture";
 import { X, Gift, Clock, Users } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const LeadMagnetPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasSeenPopup, setHasSeenPopup] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
+    // Don't show popup if user is authenticated
+    if (isAuthenticated) {
+      return;
+    }
+
     // Check if user has already seen the popup
     const hasSeen = localStorage.getItem('leadMagnetPopupSeen');
     if (hasSeen) {
@@ -22,14 +29,15 @@ export const LeadMagnetPopup = () => {
     }, 30000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isAuthenticated]);
 
   const handleClose = () => {
     setIsOpen(false);
     localStorage.setItem('leadMagnetPopupSeen', 'true');
   };
 
-  if (hasSeenPopup) return null;
+  // Don't show popup if user is authenticated or has already seen it
+  if (isAuthenticated || hasSeenPopup) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

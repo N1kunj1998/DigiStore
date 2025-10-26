@@ -3,11 +3,19 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
+const session = require('express-session');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 
+// Load environment variables first
+dotenv.config({ path: '../config.env' });
+
+// Import passport after environment variables are loaded
+// const passport = require('./config/passport');
+
 // Import routes
 const authRoutes = require('./routes/auth');
+// const oauthRoutes = require('./routes/oauth');
 const productRoutes = require('./routes/products');
 const cartRoutes = require('./routes/cart');
 const orderRoutes = require('./routes/orders');
@@ -18,9 +26,6 @@ const analyticsRoutes = require('./routes/analytics');
 const { errorHandler } = require('./middleware/errorHandler');
 const { notFound } = require('./middleware/notFound');
 
-// Load environment variables
-dotenv.config({ path: './config.env' });
-
 const app = express();
 
 // Security middleware
@@ -29,10 +34,26 @@ app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'http://localhost:5173',
     'http://localhost:8080',
-    'http://localhost:8081'
+    'http://localhost:8081',
+    'http://localhost:8082'
   ],
   credentials: true
 }));
+
+// Session middleware for OAuth (commented out for now)
+// app.use(session({
+//   secret: process.env.SESSION_SECRET || 'your-session-secret',
+//   resave: false,
+//   saveUninitialized: false,
+//   cookie: {
+//     secure: process.env.NODE_ENV === 'production',
+//     maxAge: 24 * 60 * 60 * 1000 // 24 hours
+//   }
+// }));
+
+// Initialize Passport (commented out for now)
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 // Rate limiting
 const limiter = rateLimit({
@@ -74,6 +95,7 @@ app.get('/api/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+// app.use('/api/auth', oauthRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);

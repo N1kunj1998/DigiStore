@@ -33,7 +33,14 @@ export const ProductCard = ({ id, title, description, price, type, image }: Prod
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addToCart({ id, title, price, image, type });
+    addToCart({ 
+      id: `local_${Date.now()}`, 
+      productId: id, 
+      title, 
+      price, 
+      image, 
+      type 
+    });
   };
   
   return (
