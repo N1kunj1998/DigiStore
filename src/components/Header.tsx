@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "./AuthModal";
+import { SearchSuggestions } from "./SearchSuggestions";
 import { useState } from "react";
 
 export const Header = () => {
@@ -15,6 +16,7 @@ export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -27,9 +29,23 @@ export const Header = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      navigate(`/?search=${encodeURIComponent(searchTerm.trim())}`);
+      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
       setSearchTerm("");
+      setShowSuggestions(false);
     }
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchTerm(suggestion);
+    navigate(`/search?q=${encodeURIComponent(suggestion)}`);
+    setShowSuggestions(false);
+  };
+
+  const handleSearchChange = (value: string) => {
+    console.log('🔍 Header search change:', { value, valueLength: value.length });
+    setSearchTerm(value);
+    setShowSuggestions(value.length >= 2);
+    console.log('🔍 Header showSuggestions set to:', value.length >= 2);
   };
 
   return (
@@ -55,6 +71,9 @@ export const Header = () => {
             <button onClick={() => navigate("/about")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               About
             </button>
+            <button onClick={() => navigate("/search")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Search
+            </button>
             <button onClick={() => navigate("/faq")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               FAQ
             </button>
@@ -72,8 +91,16 @@ export const Header = () => {
               <Input
                 placeholder="Search products..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-10 w-64"
+                onFocus={() => setShowSuggestions(searchTerm.length >= 2)}
+              />
+              <SearchSuggestions
+                query={searchTerm}
+                onSuggestionClick={handleSuggestionClick}
+                onSearch={handleSearch}
+                isVisible={showSuggestions}
+                onClose={() => setShowSuggestions(false)}
               />
             </div>
           </form>
@@ -131,8 +158,16 @@ export const Header = () => {
                 <Input
                   placeholder="Search products..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10"
+                  onFocus={() => setShowSuggestions(searchTerm.length >= 2)}
+                />
+                <SearchSuggestions
+                  query={searchTerm}
+                  onSuggestionClick={handleSuggestionClick}
+                  onSearch={handleSearch}
+                  isVisible={showSuggestions}
+                  onClose={() => setShowSuggestions(false)}
                 />
               </div>
             </form>
@@ -161,6 +196,12 @@ export const Header = () => {
               className="block w-full text-left py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               About
+            </button>
+            <button 
+              onClick={() => { navigate("/search"); closeMobileMenu(); }} 
+              className="block w-full text-left py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Search
             </button>
             <button 
               onClick={() => { navigate("/faq"); closeMobileMenu(); }} 

@@ -145,6 +145,11 @@ class ApiService {
     return this.request(`/products/search?${params.toString()}`);
   }
 
+  async getSearchSuggestions(query: string) {
+    const params = new URLSearchParams({ q: query });
+    return this.request(`/products/suggestions?${params.toString()}`);
+  }
+
   // Cart methods
   async getCart() {
     return this.request('/cart');

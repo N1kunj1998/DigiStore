@@ -8,7 +8,8 @@ const {
   deleteProduct,
   restoreProduct,
   getAdminProducts,
-  searchProducts 
+  searchProducts,
+  getSearchSuggestions
 } = require('../controllers/productController');
 const { authenticate } = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
@@ -82,6 +83,7 @@ const searchValidation = [
 // Routes
 router.get('/', searchValidation, validateRequest, getProducts);
 router.get('/search', searchValidation, validateRequest, searchProducts);
+router.get('/suggestions', getSearchSuggestions);
 router.get('/:id', getProduct);
 
 // Admin routes

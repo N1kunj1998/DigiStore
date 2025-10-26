@@ -339,6 +339,93 @@ const getAdminProducts = async (req, res) => {
   }
 };
 
+// Get search suggestions
+const getSearchSuggestions = async (req, res) => {
+  try {
+    const { q } = req.query;
+    
+    if (!q || q.length < 2) {
+      return res.status(200).json({
+        status: 'success',
+        data: { suggestions: [] }
+      });
+    }
+
+    // Search for products that match the query using regex for better compatibility
+    const products = await Product.find({
+      $or: [
+        { title: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } },
+        { tags: { $regex: q, $options: 'i' } },
+        { category: { $regex: q, $options: 'i' } }
+      ],
+      isActive: true,
+      isDeleted: false
+    })
+    .select('title tags category')
+    .limit(10);
+
+    // Extract unique suggestions from titles, tags, and categories
+    const suggestions = new Set();
+    
+    products.forEach(product => {
+      // Add full title if it contains the query
+      if (product.title.toLowerCase().includes(q.toLowerCase())) {
+        suggestions.add(product.title);
+      }
+      
+      // Add title words that match
+      const titleWords = product.title.toLowerCase().split(' ');
+      titleWords.forEach(word => {
+        if (word.includes(q.toLowerCase()) && word.length > 2) {
+          suggestions.add(word);
+        }
+      });
+      
+      // Add tags that match
+      product.tags.forEach(tag => {
+        if (tag.toLowerCase().includes(q.toLowerCase())) {
+          suggestions.add(tag);
+        }
+      });
+      
+      // Add category if it matches
+      if (product.category.toLowerCase().includes(q.toLowerCase())) {
+        suggestions.add(product.category);
+      }
+    });
+
+    // Convert to array and sort by relevance
+    const suggestionsArray = Array.from(suggestions)
+      .filter(suggestion => suggestion.toLowerCase().includes(q.toLowerCase()))
+      .sort((a, b) => {
+        // Prioritize exact matches and shorter suggestions
+        const aExact = a.toLowerCase().startsWith(q.toLowerCase());
+        const bExact = b.toLowerCase().startsWith(q.toLowerCase());
+        if (aExact && !bExact) return -1;
+        if (!aExact && bExact) return 1;
+        // Prioritize full titles over individual words
+        const aIsTitle = products.some(p => p.title === a);
+        const bIsTitle = products.some(p => p.title === b);
+        if (aIsTitle && !bIsTitle) return -1;
+        if (!aIsTitle && bIsTitle) return 1;
+        return a.length - b.length;
+      })
+      .slice(0, 8);
+
+    res.status(200).json({
+      status: 'success',
+      data: { suggestions: suggestionsArray }
+    });
+  } catch (error) {
+    console.error('Get search suggestions error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error'
+    });
+  }
+};
+
 module.exports = {
   getProducts,
   getProduct,
@@ -347,6 +434,7 @@ module.exports = {
   updateProduct,
   deleteProduct,
   restoreProduct,
-  getAdminProducts
+  getAdminProducts,
+  getSearchSuggestions
 };
 

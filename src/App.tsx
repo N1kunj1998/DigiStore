@@ -22,6 +22,7 @@ import RefundPolicy from "./pages/RefundPolicy";
 import NotFound from "./pages/NotFound";
 import Success from "./pages/Success";
 import AdminDashboard from "./pages/AdminDashboard";
+import SearchResults from "./pages/SearchResults";
 import { Analytics } from "./components/Analytics";
 import { LeadMagnetPopup } from "./components/LeadMagnetPopup";
 import { LeadTracking } from "./components/LeadTracking";
@@ -55,6 +56,7 @@ const AppContent = () => {
         <Route path="/success" element={<Success />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/leads" element={<LeadTracking />} />
+        <Route path="/search" element={<SearchResults />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
