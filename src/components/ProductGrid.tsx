@@ -2,7 +2,7 @@ import { ProductCard } from "./ProductCard";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Filter, Loader2 } from "lucide-react";
+import { Search, Filter, Loader2, X } from "lucide-react";
 import { apiService } from "@/services/api";
 
 interface Product {
@@ -21,23 +21,39 @@ interface Product {
 interface ProductGridProps {
   filterType?: "pdf" | "video" | "workbook";
   showFilters?: boolean;
+  searchTerm?: string | null;
 }
 
-export const ProductGrid = ({ filterType, showFilters = false }: ProductGridProps) => {
+export const ProductGrid = ({ filterType, showFilters = false, searchTerm }: ProductGridProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm || "");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 300]);
   const [sortBy, setSortBy] = useState<"price" | "title" | "newest">("newest");
+
+  // Update local search term when prop changes
+  useEffect(() => {
+    if (searchTerm !== null) {
+      setLocalSearchTerm(searchTerm);
+    }
+  }, [searchTerm]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        // Use backend filtering if filterType is specified
-        const params = filterType ? { type: filterType } : {};
-        const response = await apiService.getProducts(params);
+        
+        let response;
+        if (localSearchTerm && localSearchTerm.trim()) {
+          // Use search API when there's a search term
+          response = await apiService.searchProducts(localSearchTerm.trim(), { type: filterType });
+        } else {
+          // Use regular products API with type filtering
+          const params = filterType ? { type: filterType } : {};
+          response = await apiService.getProducts(params);
+        }
+        
         if (response.status === 'success' && response.data?.products) {
           setProducts(response.data.products);
         } else {
@@ -52,14 +68,12 @@ export const ProductGrid = ({ filterType, showFilters = false }: ProductGridProp
     };
 
     fetchProducts();
-  }, [filterType]);
+  }, [filterType, localSearchTerm]);
 
-  // Filter products based on search term and price range (type filtering is done by backend)
+  // Filter products based on price range (search and type filtering is done by backend)
   const filteredProducts = products
     .filter((product) => {
       if (!product.isActive) return false;
-      if (searchTerm && !product.title.toLowerCase().includes(searchTerm.toLowerCase()) && 
-          !product.description.toLowerCase().includes(searchTerm.toLowerCase())) return false;
       if (product.price < priceRange[0] || product.price > priceRange[1]) return false;
       return true;
     })
@@ -80,11 +94,30 @@ export const ProductGrid = ({ filterType, showFilters = false }: ProductGridProp
       <div className="container">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">
-            {filterType ? `${filterType.charAt(0).toUpperCase() + filterType.slice(1)} Products` : "Featured Digital Products"}
+            {localSearchTerm ? 
+              `Search Results for "${localSearchTerm}"` : 
+              filterType ? `${filterType.charAt(0).toUpperCase() + filterType.slice(1)} Products` : 
+              "Featured Digital Products"
+            }
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Carefully curated content to help you learn faster and achieve more
+            {localSearchTerm ? 
+              `Found ${filteredProducts.length} product${filteredProducts.length !== 1 ? 's' : ''} matching your search` :
+              "Carefully curated content to help you learn faster and achieve more"
+            }
           </p>
+          {localSearchTerm && (
+            <div className="mt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setLocalSearchTerm("")}
+                className="gap-2"
+              >
+                <X className="h-4 w-4" />
+                Clear Search
+              </Button>
+            </div>
+          )}
         </div>
 
         {showFilters && (
@@ -94,8 +127,8 @@ export const ProductGrid = ({ filterType, showFilters = false }: ProductGridProp
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   placeholder="Search products..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={localSearchTerm}
+                  onChange={(e) => setLocalSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>

@@ -11,7 +11,41 @@ const sampleProducts = [
   {
     title: "Atomic Habits",
     description: "Transform your life with tiny changes that compound over time",
-    fullDescription: "James Clear's #1 New York Times bestseller reveals how small changes can transform your habits and deliver remarkable results. Learn the proven framework for building good habits and breaking bad ones.",
+    fullDescription: `James Clear's #1 New York Times bestseller "Atomic Habits" reveals how small changes can transform your habits and deliver remarkable results. This comprehensive guide provides a proven framework for building good habits and breaking bad ones.
+
+**What You'll Learn:**
+• The science behind habit formation and why small changes create big results
+• The 4-step process for building better habits: Cue, Craving, Response, Reward
+• How to design your environment to make good habits inevitable
+• Strategies for breaking bad habits and replacing them with positive ones
+• The compound effect: how 1% improvements lead to remarkable transformations
+• Identity-based habits: changing who you are, not just what you do
+• Advanced tactics for maintaining motivation and overcoming setbacks
+
+**Key Concepts Covered:**
+- The Habit Loop: Understanding the neurological patterns behind every habit
+- Environment Design: Making good habits obvious, attractive, easy, and satisfying
+- The Two-Minute Rule: Starting new habits with minimal effort
+- Habit Stacking: Linking new habits to existing routines
+- Temptation Bundling: Pairing activities you want to do with activities you need to do
+
+**Perfect For:**
+- Anyone looking to build better habits and break bad ones
+- Professionals seeking to improve productivity and performance
+- Students wanting to develop effective study habits
+- Individuals pursuing personal development and self-improvement
+- Entrepreneurs building systems for long-term success
+
+**Real-World Applications:**
+This summary includes practical examples and case studies showing how individuals have used these principles to lose weight, build businesses, learn new skills, and achieve their goals. You'll discover how to apply these concepts to your specific situation and create lasting change.
+
+**Bonus Content:**
+- Habit tracking templates and worksheets
+- Common habit formation mistakes and how to avoid them
+- Advanced strategies for habit maintenance
+- Troubleshooting guide for when habits don't stick
+
+Transform your life one small habit at a time with this essential guide to behavior change.`,
     price: 24.99,
     type: "pdf",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
@@ -23,7 +57,58 @@ const sampleProducts = [
   {
     title: "The 7 Habits of Highly Effective People",
     description: "Timeless principles for personal and professional effectiveness",
-    fullDescription: "Stephen Covey's classic guide presents seven fundamental habits that lead to personal and professional success. Learn principles-based living for lasting change and effectiveness.",
+    fullDescription: `Stephen Covey's revolutionary book "The 7 Habits of Highly Effective People" presents a principle-centered approach for solving personal and professional problems. This comprehensive guide offers a framework for living with fairness, integrity, honesty, and human dignity.
+
+**The 7 Habits Framework:**
+
+**Private Victory (Habits 1-3):**
+1. **Be Proactive** - Take responsibility for your life and choices
+2. **Begin with the End in Mind** - Define your personal mission and vision
+3. **Put First Things First** - Prioritize based on importance, not urgency
+
+**Public Victory (Habits 4-6):**
+4. **Think Win-Win** - Seek mutual benefit in all human interactions
+5. **Seek First to Understand, Then to Be Understood** - Practice empathic communication
+6. **Synergize** - Create innovative solutions through teamwork
+
+**Renewal (Habit 7):**
+7. **Sharpen the Saw** - Balance and renew your resources, energy, and health
+
+**What You'll Master:**
+• Character ethics vs. personality ethics
+• The maturity continuum: dependence → independence → interdependence
+• Time management matrix and prioritization techniques
+• Effective communication and listening skills
+• Leadership principles and team building
+• Conflict resolution and negotiation strategies
+• Personal mission statement development
+• Goal setting and achievement frameworks
+
+**Key Concepts Explored:**
+- Paradigm shifts and how they change our perception
+- The Circle of Influence vs. Circle of Concern
+- Emotional bank account and relationship building
+- Win-win agreements and performance agreements
+- The four dimensions of renewal: physical, mental, spiritual, social
+
+**Perfect For:**
+- Leaders and managers seeking to improve their effectiveness
+- Individuals wanting to develop strong character and integrity
+- Teams looking to enhance collaboration and synergy
+- Anyone pursuing personal and professional growth
+- Students of leadership and management
+
+**Real-World Applications:**
+This summary includes practical exercises, case studies, and real-world examples showing how these principles have transformed organizations, relationships, and individual lives. Learn how to apply these timeless principles in your daily interactions and long-term planning.
+
+**Bonus Materials:**
+- Personal mission statement templates
+- Time management worksheets
+- Communication skill exercises
+- Leadership assessment tools
+- Goal-setting frameworks
+
+Transform your approach to life and work with these proven principles of effectiveness.`,
     price: 29.99,
     type: "pdf",
     image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400",
@@ -59,7 +144,59 @@ const sampleProducts = [
   {
     title: "Deep Work",
     description: "Rules for focused success in a distracted world",
-    fullDescription: "Cal Newport argues that the ability to perform deep work is becoming increasingly rare and valuable. Learn how to focus intensely without distraction and produce better results.",
+    fullDescription: `Cal Newport's groundbreaking book "Deep Work" argues that the ability to perform deep work is becoming increasingly rare and valuable in our distracted world. This comprehensive guide teaches you how to focus intensely without distraction and produce better results.
+
+**What is Deep Work?**
+Deep work is professional activities performed in a state of distraction-free concentration that push your cognitive capabilities to their limit. These efforts create new value, improve your skill, and are hard to replicate.
+
+**The Four Philosophies of Deep Work:**
+1. **Monastic Philosophy** - Eliminate or minimize shallow obligations
+2. **Bimodal Philosophy** - Divide your time between deep work and everything else
+3. **Rhythmic Philosophy** - Create a routine of regular deep work sessions
+4. **Journalistic Philosophy** - Fit deep work wherever you can into your schedule
+
+**Core Principles You'll Master:**
+• The neuroscience of attention and focus
+• How to eliminate distractions and create focus-friendly environments
+• Time-blocking techniques for deep work sessions
+• The importance of boredom and embracing mental challenges
+• How to measure and track your deep work progress
+• Strategies for maintaining focus in an always-connected world
+• The economic value of deep work in the knowledge economy
+
+**Practical Strategies Covered:**
+- Digital minimalism and technology detox techniques
+- Creating distraction-free workspaces
+- Building deep work rituals and routines
+- Managing email and shallow work obligations
+- Using downtime for mental restoration
+- Developing concentration stamina through practice
+- Balancing deep work with collaboration needs
+
+**The Deep Work Rules:**
+1. **Work Deeply** - Schedule deep work and protect this time
+2. **Embrace Boredom** - Train your mind to resist distraction
+3. **Quit Social Media** - Evaluate tools based on their benefits vs. harms
+4. **Drain the Shallows** - Minimize shallow work and optimize schedules
+
+**Perfect For:**
+- Knowledge workers seeking to maximize their productivity
+- Students wanting to improve their study and learning efficiency
+- Entrepreneurs building businesses that require intense focus
+- Creatives and artists looking to enhance their creative output
+- Professionals in competitive fields where quality matters
+
+**Real-World Applications:**
+This summary includes case studies of successful individuals who have mastered deep work, practical exercises for building focus, and step-by-step guides for implementing deep work principles in various professional contexts.
+
+**Bonus Content:**
+- Deep work scheduling templates
+- Distraction elimination checklists
+- Focus-building exercises and meditation techniques
+- Technology detox protocols
+- Productivity measurement tools
+
+Transform your work habits and achieve extraordinary results through the power of deep, focused work.`,
     price: 26.99,
     type: "pdf",
     image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400",
