@@ -12,9 +12,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: function() {
-      return !this.googleId && !this.facebookId && !this.twitterId;
-    },
+    required: [true, 'Password is required'],
     minlength: [6, 'Password must be at least 6 characters'],
     select: false // Don't include password in queries by default
   },
@@ -37,22 +35,9 @@ const userSchema = new mongoose.Schema({
   lastLogin: {
     type: Date
   },
-  // OAuth fields
-  googleId: {
-    type: String,
-    sparse: true // Allows multiple null values
-  },
-  facebookId: {
-    type: String,
-    sparse: true
-  },
-  twitterId: {
-    type: String,
-    sparse: true
-  },
   authProvider: {
     type: String,
-    enum: ['local', 'google', 'facebook', 'twitter'],
+    enum: ['local'],
     default: 'local'
   },
   emailVerified: {
@@ -63,12 +48,10 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Email index is already defined with unique: true above
-
 // Hash password before saving
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password') || !this.password) return next();
-  
+  if (!this.isModified('password')) return next();
+
   try {
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);

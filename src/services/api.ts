@@ -14,7 +14,7 @@ class ApiService {
 
   constructor(baseURL: string) {
     this.baseURL = baseURL;
-    this.token = localStorage.getItem('token');
+    this.token = localStorage.getItem('authToken');
   }
 
   private async request<T>(
@@ -66,10 +66,10 @@ class ApiService {
     return response;
   }
 
-  async login(credentials: { email: string; password: string }) {
+  async login(email: string, password: string) {
     const response = await this.request('/auth/login', {
       method: 'POST',
-      body: JSON.stringify(credentials),
+      body: JSON.stringify({ email, password }),
     });
 
     if (response.data?.token) {
@@ -140,27 +140,27 @@ class ApiService {
   }
 
   async addToCart(productId: string, quantity: number = 1) {
-    return this.request('/cart/add', {
+    return this.request('/cart', {
       method: 'POST',
       body: JSON.stringify({ productId, quantity }),
     });
   }
 
-  async updateCartItem(itemId: string, quantity: number) {
-    return this.request(`/cart/update/${itemId}`, {
+  async updateCartItem(productId: string, quantity: number) {
+    return this.request(`/cart/${productId}`, {
       method: 'PUT',
       body: JSON.stringify({ quantity }),
     });
   }
 
-  async removeFromCart(itemId: string) {
-    return this.request(`/cart/remove/${itemId}`, {
+  async removeFromCart(productId: string) {
+    return this.request(`/cart/${productId}`, {
       method: 'DELETE',
     });
   }
 
   async clearCart() {
-    return this.request('/cart/clear', {
+    return this.request('/cart', {
       method: 'DELETE',
     });
   }
@@ -273,12 +273,12 @@ class ApiService {
   // Utility methods
   setToken(token: string) {
     this.token = token;
-    localStorage.setItem('token', token);
+    localStorage.setItem('authToken', token);
   }
 
   clearToken() {
     this.token = null;
-    localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
   }
 
   isAuthenticated(): boolean {

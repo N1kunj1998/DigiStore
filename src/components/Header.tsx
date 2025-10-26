@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "./AuthModal";
-import { UserButton } from "@clerk/clerk-react";
 import { useState } from "react";
 
 export const Header = () => {
@@ -85,16 +84,9 @@ export const Header = () => {
               <span className="hidden sm:inline text-sm text-muted-foreground">
                 Welcome, {user?.firstName}
               </span>
-              <UserButton 
-                appearance={{
-                  elements: {
-                    avatarBox: "h-8 w-8",
-                    userButtonPopoverCard: "shadow-lg border",
-                    userButtonPopoverActionButton: "hover:bg-gray-50",
-                  }
-                }}
-                afterSignOutUrl="/"
-              />
+              <Button variant="ghost" size="sm" onClick={logout}>
+                Logout
+              </Button>
             </div>
           ) : (
             <Button variant="ghost" size="sm" onClick={() => setIsAuthModalOpen(true)}>
@@ -179,18 +171,14 @@ export const Header = () => {
                   <p className="text-sm text-muted-foreground">
                     Welcome, {user?.firstName}
                   </p>
-                  <div className="flex justify-center">
-                    <UserButton 
-                      appearance={{
-                        elements: {
-                          avatarBox: "h-8 w-8",
-                          userButtonPopoverCard: "shadow-lg border",
-                          userButtonPopoverActionButton: "hover:bg-gray-50",
-                        }
-                      }}
-                      afterSignOutUrl="/"
-                    />
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => { logout(); closeMobileMenu(); }}
+                    className="w-full"
+                  >
+                    Logout
+                  </Button>
                 </div>
               ) : (
                 <Button 

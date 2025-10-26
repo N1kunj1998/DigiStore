@@ -52,6 +52,10 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  featured: {
+    type: Boolean,
+    default: false
+  },
   downloadCount: {
     type: Number,
     default: 0

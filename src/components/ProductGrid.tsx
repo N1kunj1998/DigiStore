@@ -35,7 +35,9 @@ export const ProductGrid = ({ filterType, showFilters = false }: ProductGridProp
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await apiService.getProducts();
+        // Use backend filtering if filterType is specified
+        const params = filterType ? { type: filterType } : {};
+        const response = await apiService.getProducts(params);
         if (response.status === 'success' && response.data?.products) {
           setProducts(response.data.products);
         } else {
@@ -50,13 +52,12 @@ export const ProductGrid = ({ filterType, showFilters = false }: ProductGridProp
     };
 
     fetchProducts();
-  }, []);
+  }, [filterType]);
 
-  // Filter products based on type, search term, and price range
+  // Filter products based on search term and price range (type filtering is done by backend)
   const filteredProducts = products
     .filter((product) => {
       if (!product.isActive) return false;
-      if (filterType && product.type !== filterType) return false;
       if (searchTerm && !product.title.toLowerCase().includes(searchTerm.toLowerCase()) && 
           !product.description.toLowerCase().includes(searchTerm.toLowerCase())) return false;
       if (product.price < priceRange[0] || product.price > priceRange[1]) return false;

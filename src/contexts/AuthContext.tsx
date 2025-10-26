@@ -1,6 +1,6 @@
-import React, { createContext, useContext, ReactNode } from 'react';
-import { useUser, useAuth as useClerkAuth } from '@clerk/clerk-react';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { apiService } from '../services/api';
 
 interface User {
   id: string;
@@ -34,26 +34,52 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { user: clerkUser, isLoaded } = useUser();
-  const { signOut } = useClerkAuth();
-
-  // Convert Clerk user to our User interface
-  const user: User | null = clerkUser ? {
-    id: clerkUser.id,
-    email: clerkUser.emailAddresses[0]?.emailAddress || '',
-    firstName: clerkUser.firstName || '',
-    lastName: clerkUser.lastName || '',
-    isActive: true,
-    lastLogin: clerkUser.lastSignInAt?.toISOString(),
-    createdAt: clerkUser.createdAt?.toISOString() || new Date().toISOString(),
-  } : null;
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const isAuthenticated = !!user;
-  const isLoading = !isLoaded;
+
+  // Check for existing session on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+          const response = await apiService.getProfile();
+          if (response.status === 'success') {
+            setUser(response.data);
+          } else {
+            localStorage.removeItem('authToken');
+          }
+        }
+      } catch (error) {
+        localStorage.removeItem('authToken');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   const login = async (email: string, password: string) => {
-    // Clerk handles login through their components
-    toast.info('Please use the sign-in form below');
+    try {
+      setIsLoading(true);
+      const response = await apiService.login(email, password);
+      
+      if (response.status === 'success') {
+        localStorage.setItem('authToken', response.data.token);
+        setUser(response.data.user);
+        toast.success('Login successful!');
+      } else {
+        throw new Error(response.message || 'Login failed');
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Login failed');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const register = async (userData: {
@@ -62,19 +88,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     firstName: string;
     lastName: string;
   }) => {
-    // Clerk handles registration through their components
-    toast.info('Please use the sign-up form below');
+    try {
+      setIsLoading(true);
+      const response = await apiService.register(userData);
+      
+      if (response.status === 'success') {
+        localStorage.setItem('authToken', response.data.token);
+        setUser(response.data.user);
+        toast.success('Registration successful!');
+      } else {
+        throw new Error(response.message || 'Registration failed');
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Registration failed');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const logout = async () => {
-    try {
-      await signOut();
-      localStorage.removeItem('leadMagnetPopupSeen');
-      toast.success('Logged out successfully!');
-    } catch (error) {
-      console.error('Logout error:', error);
-      toast.error('Logout failed');
-    }
+  const logout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('leadMagnetPopupSeen');
+    setUser(null);
+    toast.success('Logged out successfully!');
   };
 
   const updateProfile = async (profileData: {
@@ -82,8 +119,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     lastName?: string;
     email?: string;
   }) => {
-    // Clerk handles profile updates through their components
-    toast.info('Please use Clerk\'s profile management');
+    try {
+      setIsLoading(true);
+      const response = await apiService.updateProfile(profileData);
+      
+      if (response.status === 'success') {
+        setUser(response.data);
+        toast.success('Profile updated successfully!');
+      } else {
+        throw new Error(response.message || 'Profile update failed');
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Profile update failed');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

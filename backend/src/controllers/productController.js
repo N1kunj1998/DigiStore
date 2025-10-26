@@ -8,6 +8,7 @@ const getProducts = async (req, res) => {
       category,
       minPrice,
       maxPrice,
+      featured,
       sortBy = 'createdAt',
       sortOrder = 'desc',
       page = 1,
@@ -19,6 +20,7 @@ const getProducts = async (req, res) => {
     
     if (type) filter.type = type;
     if (category) filter.category = category;
+    if (featured !== undefined) filter.featured = featured === 'true';
     if (minPrice || maxPrice) {
       filter.price = {};
       if (minPrice) filter.price.$gte = Number(minPrice);
@@ -96,6 +98,7 @@ const searchProducts = async (req, res) => {
       category,
       minPrice,
       maxPrice,
+      featured,
       sortBy = 'createdAt',
       sortOrder = 'desc',
       page = 1,
@@ -110,6 +113,7 @@ const searchProducts = async (req, res) => {
     }
     if (type) filter.type = type;
     if (category) filter.category = category;
+    if (featured !== undefined) filter.featured = featured === 'true';
     if (minPrice || maxPrice) {
       filter.price = {};
       if (minPrice) filter.price.$gte = Number(minPrice);
