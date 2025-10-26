@@ -1,59 +1,22 @@
 import { ProductCard } from "./ProductCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, Loader2 } from "lucide-react";
+import { apiService } from "@/services/api";
 
-const products = [
-  {
-    id: "1",
-    title: "Atomic Habits - Complete Summary",
-    description: "Master the art of habit formation with this comprehensive summary of James Clear's bestseller",
-    price: 9.99,
-    type: "pdf" as const,
-    image: "/placeholder.svg",
-  },
-  {
-    id: "2",
-    title: "Deep Work Mastery Course",
-    description: "5-hour video course on implementing Cal Newport's deep work principles in your daily life",
-    price: 49.99,
-    type: "video" as const,
-    image: "/placeholder.svg",
-  },
-  {
-    id: "3",
-    title: "Productivity Workbook 2024",
-    description: "Interactive workbook with exercises, templates, and frameworks for peak productivity",
-    price: 19.99,
-    type: "workbook" as const,
-    image: "/placeholder.svg",
-  },
-  {
-    id: "4",
-    title: "Thinking Fast and Slow - Key Insights",
-    description: "Essential takeaways from Daniel Kahneman's groundbreaking work on decision-making",
-    price: 12.99,
-    type: "pdf" as const,
-    image: "/placeholder.svg",
-  },
-  {
-    id: "5",
-    title: "Communication Skills Masterclass",
-    description: "Complete video training on effective communication in business and personal relationships",
-    price: 59.99,
-    type: "video" as const,
-    image: "/placeholder.svg",
-  },
-  {
-    id: "6",
-    title: "Goal Setting & Achievement Workbook",
-    description: "Proven frameworks and exercises to set meaningful goals and achieve them consistently",
-    price: 24.99,
-    type: "workbook" as const,
-    image: "/placeholder.svg",
-  },
-];
+interface Product {
+  _id: string;
+  title: string;
+  description: string;
+  fullDescription?: string;
+  price: number;
+  type: "pdf" | "video" | "workbook";
+  image: string;
+  category: string;
+  tags: string[];
+  isActive: boolean;
+}
 
 interface ProductGridProps {
   filterType?: "pdf" | "video" | "workbook";
@@ -61,13 +24,38 @@ interface ProductGridProps {
 }
 
 export const ProductGrid = ({ filterType, showFilters = false }: ProductGridProps) => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 300]);
   const [sortBy, setSortBy] = useState<"price" | "title" | "newest">("newest");
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await apiService.getProducts();
+        if (response.status === 'success' && response.data?.products) {
+          setProducts(response.data.products);
+        } else {
+          setError('Failed to fetch products');
+        }
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Failed to fetch products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   // Filter products based on type, search term, and price range
   const filteredProducts = products
     .filter((product) => {
+      if (!product.isActive) return false;
       if (filterType && product.type !== filterType) return false;
       if (searchTerm && !product.title.toLowerCase().includes(searchTerm.toLowerCase()) && 
           !product.description.toLowerCase().includes(searchTerm.toLowerCase())) return false;
@@ -149,16 +137,38 @@ export const ProductGrid = ({ filterType, showFilters = false }: ProductGridProp
           </div>
         )}
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProducts.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
-
-        {filteredProducts.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No products found matching your criteria.</p>
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <span className="ml-2">Loading products...</span>
           </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-500 mb-4">Error: {error}</p>
+            <Button onClick={() => window.location.reload()}>Retry</Button>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProducts.map((product) => (
+                <ProductCard 
+                  key={product._id} 
+                  id={product._id}
+                  title={product.title}
+                  description={product.description}
+                  price={product.price}
+                  type={product.type}
+                  image={product.image}
+                />
+              ))}
+            </div>
+
+            {filteredProducts.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No products found matching your criteria.</p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -6,79 +7,74 @@ import { LeadCapture } from "@/components/LeadCapture";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, FileText, Video, BookOpen, Star, Download, Gift } from "lucide-react";
+import { ArrowLeft, FileText, Video, BookOpen, Star, Download, Gift, Loader2 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { apiService } from "@/services/api";
 
-const products = [
-  {
-    id: "1",
-    title: "Atomic Habits - Complete Summary",
-    description: "Master the art of habit formation with this comprehensive summary of James Clear's bestseller",
-    fullDescription: "This comprehensive 50-page summary breaks down every chapter of Atomic Habits, providing actionable insights and practical frameworks you can implement immediately. Learn about the four laws of behavior change, habit stacking, and environmental design.",
-    price: 9.99,
-    type: "pdf" as const,
-    image: "/placeholder.svg",
-  },
-  {
-    id: "2",
-    title: "Deep Work Mastery Course",
-    description: "5-hour video course on implementing Cal Newport's deep work principles in your daily life",
-    fullDescription: "Five hours of premium video content teaching you how to achieve deep work in our distracted world. Includes practical techniques, real-world examples, and downloadable resources.",
-    price: 49.99,
-    type: "video" as const,
-    image: "/placeholder.svg",
-  },
-  {
-    id: "3",
-    title: "Productivity Workbook 2024",
-    description: "Interactive workbook with exercises, templates, and frameworks for peak productivity",
-    fullDescription: "100+ pages of exercises, templates, and proven frameworks. Includes daily planning sheets, goal-setting templates, and productivity tracking systems.",
-    price: 19.99,
-    type: "workbook" as const,
-    image: "/placeholder.svg",
-  },
-  {
-    id: "4",
-    title: "Thinking Fast and Slow - Key Insights",
-    description: "Essential takeaways from Daniel Kahneman's groundbreaking work on decision-making",
-    fullDescription: "A detailed summary of one of the most influential books on human cognition. Learn about System 1 and System 2 thinking, cognitive biases, and better decision-making.",
-    price: 12.99,
-    type: "pdf" as const,
-    image: "/placeholder.svg",
-  },
-  {
-    id: "5",
-    title: "Communication Skills Masterclass",
-    description: "Complete video training on effective communication in business and personal relationships",
-    fullDescription: "Master the art of communication with 8 hours of professional training. Covers verbal communication, body language, active listening, and persuasion techniques.",
-    price: 59.99,
-    type: "video" as const,
-    image: "/placeholder.svg",
-  },
-  {
-    id: "6",
-    title: "Goal Setting & Achievement Workbook",
-    description: "Proven frameworks and exercises to set meaningful goals and achieve them consistently",
-    fullDescription: "Transform your goal-setting approach with this comprehensive workbook. Includes the SMART framework, vision boarding exercises, and quarterly review templates.",
-    price: 24.99,
-    type: "workbook" as const,
-    image: "/placeholder.svg",
-  },
-];
+interface Product {
+  _id: string;
+  title: string;
+  description: string;
+  fullDescription?: string;
+  price: number;
+  type: "pdf" | "video" | "workbook";
+  image: string;
+  category: string;
+  tags: string[];
+  isActive: boolean;
+}
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  
-  const product = products.find((p) => p.id === id);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!product) {
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) return;
+      
+      try {
+        setLoading(true);
+        const response = await apiService.getProduct(id);
+        if (response.status === 'success' && response.data?.product) {
+          setProduct(response.data.product);
+        } else {
+          setError('Product not found');
+        }
+      } catch (err) {
+        console.error('Error fetching product:', err);
+        setError('Failed to fetch product');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container py-20 flex justify-center items-center">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="ml-2">Loading product...</span>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !product) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container py-20 text-center">
           <h1 className="text-2xl font-bold mb-4">Product not found</h1>
+          <p className="text-muted-foreground mb-4">{error}</p>
           <Button onClick={() => navigate("/")}>Back to Home</Button>
         </div>
         <Footer />
@@ -98,113 +94,120 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = () => {
-    addToCart(product);
+    addToCart({
+      id: product._id,
+      title: product.title,
+      price: product.price,
+      image: product.image,
+      type: product.type
+    });
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="container py-12">
-        <Button
-          variant="ghost"
-          className="mb-6"
+      <main className="container py-8">
+        {/* Back Button */}
+        <Button 
+          variant="ghost" 
           onClick={() => navigate("/")}
+          className="mb-6 gap-2"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" />
           Back to Products
         </Button>
 
-        <div className="grid md:grid-cols-2 gap-12">
-          <div>
-            <img
-              src={product.image}
-              alt={product.title}
-              className="w-full h-[500px] object-cover rounded-lg"
-            />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          {/* Product Image */}
+          <div className="space-y-4">
+            <div className="aspect-[4/3] bg-muted rounded-lg overflow-hidden">
+              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary-glow/20 flex items-center justify-center">
+                {getIcon()}
+              </div>
+            </div>
+            
+            {/* Product Tags */}
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="secondary" className="gap-1">
+                {getIcon()}
+                {product.type.toUpperCase()}
+              </Badge>
+              <Badge variant="outline">{product.category}</Badge>
+              {product.tags.slice(0, 3).map((tag) => (
+                <Badge key={tag} variant="outline">{tag}</Badge>
+              ))}
+            </div>
           </div>
 
-          <div>
-            <Badge className="mb-4" variant="secondary">
-              {getIcon()}
-              <span className="ml-2 uppercase">{product.type}</span>
-            </Badge>
-            
-            <h1 className="text-4xl font-bold mb-4">{product.title}</h1>
-            
-            <p className="text-xl text-muted-foreground mb-6">
-              {product.description}
-            </p>
-
-            <div className="text-3xl font-bold text-primary mb-8">
-              ${product.price}
-            </div>
-
-            <div className="flex gap-4 mb-8">
-              <Button size="lg" className="flex-1" onClick={handleAddToCart}>
-                Add to Cart
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate("/cart")}>
-                View Cart
-              </Button>
-            </div>
-
-            <div className="border-t pt-8">
-              <h2 className="text-2xl font-bold mb-4">About this product</h2>
-              <p className="text-muted-foreground leading-relaxed mb-6">
-                {product.fullDescription}
-              </p>
-              
-              {/* Product Features */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">What's included:</h3>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li className="flex items-center gap-2">
-                    <Download className="h-4 w-4 text-primary" />
-                    Instant download after purchase
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Star className="h-4 w-4 text-primary" />
-                    Lifetime access to updates
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-primary" />
-                    Mobile-friendly format
-                  </li>
-                </ul>
+          {/* Product Info */}
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
+              <p className="text-lg text-muted-foreground mb-4">{product.description}</p>
+              <div className="flex items-baseline gap-2 mb-6">
+                <span className="text-4xl font-bold">${product.price}</span>
+                <span className="text-muted-foreground">one-time purchase</span>
               </div>
             </div>
 
-            {/* Lead Magnet Section */}
-            <div className="border-t pt-8">
-              <Card className="bg-gradient-to-r from-primary/5 to-primary-glow/5 border-primary/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Gift className="h-5 w-5 text-primary" />
-                    Get a Free Sample First
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Not sure if this is right for you? Download our free preview and see the quality for yourself.
-                  </p>
-                  <LeadCapture
-                    productId={`sample-${product.id}`}
-                    productTitle={`Free Sample: ${product.title}`}
-                    productDescription={`Get a free preview of ${product.title} to see if it's right for you`}
-                    isModal={true}
-                  />
-                </CardContent>
-              </Card>
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              <Button size="lg" className="w-full gap-2" onClick={handleAddToCart}>
+                <ShoppingCart className="h-5 w-5" />
+                Add to Cart
+              </Button>
+              
+              <Button variant="outline" size="lg" className="w-full gap-2">
+                <Gift className="h-5 w-5" />
+                Gift This Product
+              </Button>
             </div>
+
+            {/* Product Stats */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">What's Included</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Download className="h-5 w-5 text-primary" />
+                  <span>Instant download after purchase</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Star className="h-5 w-5 text-primary" />
+                  <span>High-quality content</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Gift className="h-5 w-5 text-primary" />
+                  <span>Lifetime access</span>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </div>
 
-      <ProductRecommendations 
-        currentProductId={product.id} 
-        currentProductType={product.type} 
-      />
+        {/* Product Description */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold mb-4">About This Product</h2>
+          <div className="prose prose-gray max-w-none">
+            <p className="text-lg leading-relaxed">
+              {product.fullDescription || product.description}
+            </p>
+          </div>
+        </div>
+
+        {/* Lead Capture */}
+        <div className="mb-12">
+          <LeadCapture />
+        </div>
+
+        {/* Product Recommendations */}
+        <ProductRecommendations 
+          currentProductId={product._id}
+          currentProductType={product.type}
+        />
+      </main>
 
       <Footer />
     </div>

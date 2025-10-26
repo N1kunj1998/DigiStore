@@ -1,16 +1,20 @@
-import { ShoppingCart, Menu, X, Search } from "lucide-react";
+import { ShoppingCart, Menu, X, Search, User, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthModal } from "./AuthModal";
 import { useState } from "react";
 
 export const Header = () => {
   const navigate = useNavigate();
   const { cartCount } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -74,6 +78,24 @@ export const Header = () => {
             </div>
           </form>
           
+          {/* Auth Button */}
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:inline text-sm text-muted-foreground">
+                Welcome, {user?.firstName}
+              </span>
+              <Button variant="ghost" size="sm" onClick={logout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          ) : (
+            <Button variant="ghost" size="sm" onClick={() => setIsAuthModalOpen(true)}>
+              <User className="h-4 w-4 mr-2" />
+              Login
+            </Button>
+          )}
+
           <Button variant="ghost" size="icon" className="relative" onClick={() => navigate("/cart")}>
             <ShoppingCart className="h-5 w-5" />
             {cartCount > 0 && (
@@ -142,10 +164,46 @@ export const Header = () => {
             >
               Contact
             </button>
+            
+            {/* Mobile Auth */}
+            <div className="pt-4 border-t">
+              {isAuthenticated ? (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Welcome, {user?.firstName}
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => { logout(); closeMobileMenu(); }}
+                    className="w-full"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => { setIsAuthModalOpen(true); closeMobileMenu(); }}
+                  className="w-full"
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Login
+                </Button>
+              )}
+            </div>
             </nav>
           </div>
         </div>
       )}
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
     </header>
   );
 };
