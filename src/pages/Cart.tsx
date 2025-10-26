@@ -1,3 +1,4 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -5,10 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useActivityTracking } from "@/hooks/useActivityTracking";
 
 const Cart = () => {
   const navigate = useNavigate();
   const { cartItems, removeFromCart, cartTotal } = useCart();
+  const { trackCartView, trackRemoveFromCart, trackCheckoutStart } = useActivityTracking();
+
+  // Track cart view when component mounts
+  React.useEffect(() => {
+    trackCartView();
+  }, [trackCartView]);
 
   if (cartItems.length === 0) {
     return (
@@ -57,7 +65,10 @@ const Cart = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => {
+                          trackRemoveFromCart(item.productId, item.title, item.price);
+                          removeFromCart(item.id);
+                        }}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Remove
@@ -91,7 +102,10 @@ const Cart = () => {
               <Button
                 className="w-full"
                 size="lg"
-                onClick={() => navigate("/checkout")}
+                onClick={() => {
+                  trackCheckoutStart(cartItems, cartTotal);
+                  navigate("/checkout");
+                }}
               >
                 Proceed to Checkout
               </Button>

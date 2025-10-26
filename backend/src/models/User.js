@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
   lastLogin: {
     type: Date
   },
+  loginCount: {
+    type: Number,
+    default: 0
+  },
   authProvider: {
     type: String,
     enum: ['local'],
@@ -43,6 +47,60 @@ const userSchema = new mongoose.Schema({
   emailVerified: {
     type: Boolean,
     default: false
+  },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user'
+  },
+  // User tracking fields
+  totalOrders: {
+    type: Number,
+    default: 0
+  },
+  totalSpent: {
+    type: Number,
+    default: 0
+  },
+  lastActivity: {
+    type: Date,
+    default: Date.now
+  },
+  profileViews: {
+    type: Number,
+    default: 0
+  },
+  // User preferences and behavior tracking
+  preferences: {
+    newsletter: {
+      type: Boolean,
+      default: true
+    },
+    notifications: {
+      type: Boolean,
+      default: true
+    },
+    preferredCategories: [{
+      type: String
+    }]
+  },
+  // Device and location tracking (optional)
+  deviceInfo: {
+    lastDevice: String,
+    lastBrowser: String,
+    lastOS: String
+  },
+  // User status and engagement
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'suspended', 'banned'],
+    default: 'active'
+  },
+  engagementScore: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 100
   }
 }, {
   timestamps: true

@@ -205,6 +205,43 @@ const sampleProducts = [
     category: "Finance",
     tags: ["finance", "workbook", "wealth-building", "investing", "budgeting"],
     fileUrl: "https://example.com/workbooks/financial-freedom-workbook.pdf"
+  },
+  // Free products
+  {
+    title: "The Ultimate Productivity Checklist",
+    description: "A comprehensive 5-page checklist covering the most effective productivity techniques used by top performers.",
+    fullDescription: "Download this free checklist and start implementing proven productivity techniques immediately. Includes time management, focus strategies, and workflow optimization tips.",
+    price: 0,
+    type: "pdf",
+    image: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=400",
+    category: "Productivity",
+    tags: ["productivity", "checklist", "free", "time-management", "focus"],
+    fileUrl: "https://example.com/files/ultimate-productivity-checklist.pdf",
+    featured: false
+  },
+  {
+    title: "Goal Setting Framework Template",
+    description: "A step-by-step template to set and achieve your most important goals using the SMART framework.",
+    fullDescription: "This free template will help you set clear, achievable goals using the proven SMART framework. Includes progress tracking sheets and success metrics.",
+    price: 0,
+    type: "pdf",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
+    category: "Self-Help",
+    tags: ["goals", "template", "free", "smart-framework", "planning"],
+    fileUrl: "https://example.com/files/goal-setting-framework.pdf",
+    featured: false
+  },
+  {
+    title: "Daily Habit Tracker",
+    description: "A simple yet powerful habit tracking system to build consistency and achieve your long-term goals.",
+    fullDescription: "Download this free habit tracker and start building the habits that will transform your life. Includes 30-day tracking sheets and habit stacking guide.",
+    price: 0,
+    type: "pdf",
+    image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400",
+    category: "Self-Help",
+    tags: ["habits", "tracker", "free", "consistency", "self-improvement"],
+    fileUrl: "https://example.com/files/daily-habit-tracker.pdf",
+    featured: false
   }
 ];
 
@@ -215,7 +252,8 @@ const sampleUsers = [
     password: "admin123",
     firstName: "Admin",
     lastName: "User",
-    isActive: true
+    isActive: true,
+    role: "admin"
   },
   {
     email: "john.doe@example.com",
@@ -248,8 +286,12 @@ const seedDatabase = async () => {
     const products = await Product.insertMany(sampleProducts);
     console.log(`Inserted ${products.length} products`);
 
-    // Insert sample users
-    const users = await User.insertMany(sampleUsers);
+    // Insert sample users (using create to trigger password hashing)
+    const users = [];
+    for (const userData of sampleUsers) {
+      const user = await User.create(userData);
+      users.push(user);
+    }
     console.log(`Inserted ${users.length} users`);
 
     console.log('Database seeded successfully!');

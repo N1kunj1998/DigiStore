@@ -26,8 +26,8 @@ const addToCartValidation = [
 // Update cart item validation rules
 const updateCartItemValidation = [
   param('itemId')
-    .isMongoId()
-    .withMessage('Item ID must be a valid MongoDB ObjectId'),
+    .isUUID()
+    .withMessage('Item ID must be a valid UUID'),
   body('quantity')
     .isInt({ min: 0, max: 10 })
     .withMessage('Quantity must be between 0 and 10')
@@ -36,8 +36,8 @@ const updateCartItemValidation = [
 // Remove from cart validation rules
 const removeFromCartValidation = [
   param('itemId')
-    .isMongoId()
-    .withMessage('Item ID must be a valid MongoDB ObjectId')
+    .isUUID()
+    .withMessage('Item ID must be a valid UUID')
 ];
 
 // All cart routes require authentication

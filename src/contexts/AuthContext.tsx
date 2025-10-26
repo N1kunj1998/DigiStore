@@ -8,6 +8,7 @@ interface User {
   firstName: string;
   lastName: string;
   isActive: boolean;
+  role: 'user' | 'admin';
   lastLogin?: string;
   createdAt: string;
 }
@@ -15,6 +16,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (userData: {
@@ -38,16 +40,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const isAuthenticated = !!user;
+  const isAdmin = user?.role === 'admin';
 
   // Check for existing session on mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem('authToken');
+        
         if (token) {
           const response = await apiService.getProfile();
+          
           if (response.status === 'success') {
-            setUser(response.data);
+            setUser(response.data.user);
           } else {
             localStorage.removeItem('authToken');
           }
@@ -142,6 +147,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       value={{
         user,
         isAuthenticated,
+        isAdmin,
         isLoading,
         login,
         register,

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, FileText, Video, BookOpen } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useActivityTracking } from "@/hooks/useActivityTracking";
 
 interface ProductCardProps {
   id: string;
@@ -30,9 +31,16 @@ export const ProductCard = ({ id, title, description, price, type, image }: Prod
   const Icon = typeIcons[type];
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { trackProductView, trackAddToCart } = useActivityTracking();
+
+  const handleCardClick = () => {
+    trackProductView(id, title, price);
+    navigate(`/product/${id}`);
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
+    trackAddToCart(id, title, price, 1);
     addToCart({ 
       id: `local_${Date.now()}`, 
       productId: id, 
@@ -46,11 +54,23 @@ export const ProductCard = ({ id, title, description, price, type, image }: Prod
   return (
     <Card 
       className="group overflow-hidden transition-all duration-300 hover:shadow-[var(--shadow-elegant)] hover:-translate-y-1 cursor-pointer"
-      onClick={() => navigate(`/product/${id}`)}
+      onClick={handleCardClick}
     >
       <CardHeader className="p-0">
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary-glow/20 flex items-center justify-center">
+          {image ? (
+            <img 
+              src={image} 
+              alt={title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback to icon if image fails to load
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              }}
+            />
+          ) : null}
+          <div className={`absolute inset-0 bg-gradient-to-br from-primary/20 to-primary-glow/20 flex items-center justify-center ${image ? 'hidden' : ''}`}>
             <Icon className="h-16 w-16 text-primary/40" />
           </div>
           <Badge className="absolute top-3 right-3 gap-1">

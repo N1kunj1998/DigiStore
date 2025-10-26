@@ -23,10 +23,13 @@ class ApiService {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
     
+    // Always get the latest token from localStorage
+    const currentToken = localStorage.getItem('authToken');
+    
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+        ...(currentToken && { Authorization: `Bearer ${currentToken}` }),
         ...options.headers,
       },
       ...options,
@@ -34,6 +37,14 @@ class ApiService {
 
     try {
       const response = await fetch(url, config);
+      
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}...`);
+      }
+      
       const data = await response.json();
 
       if (!response.ok) {
@@ -140,21 +151,21 @@ class ApiService {
   }
 
   async addToCart(productId: string, quantity: number = 1) {
-    return this.request('/cart', {
+    return this.request('/cart/add', {
       method: 'POST',
       body: JSON.stringify({ productId, quantity }),
     });
   }
 
-  async updateCartItem(productId: string, quantity: number) {
-    return this.request(`/cart/${productId}`, {
+  async updateCartItem(itemId: string, quantity: number) {
+    return this.request(`/cart/${itemId}`, {
       method: 'PUT',
       body: JSON.stringify({ quantity }),
     });
   }
 
-  async removeFromCart(productId: string) {
-    return this.request(`/cart/${productId}`, {
+  async removeFromCart(itemId: string) {
+    return this.request(`/cart/${itemId}`, {
       method: 'DELETE',
     });
   }
@@ -268,6 +279,208 @@ class ApiService {
     }
 
     return this.request(`/analytics/overview?${queryParams.toString()}`);
+  }
+
+  // Admin methods
+  async getAdminProducts(params?: {
+    type?: string;
+    category?: string;
+    includeDeleted?: boolean;
+    sortBy?: string;
+    sortOrder?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+
+    return this.request(`/products/admin/all?${queryParams.toString()}`);
+  }
+
+  async createProduct(productData: {
+    title: string;
+    description: string;
+    fullDescription?: string;
+    price: number;
+    type: 'pdf' | 'video' | 'workbook';
+    category: string;
+    image: string;
+    fileUrl?: string;
+    featured?: boolean;
+    tags?: string[];
+  }) {
+    return this.request('/products', {
+      method: 'POST',
+      body: JSON.stringify(productData),
+    });
+  }
+
+  async updateProduct(id: string, productData: {
+    title?: string;
+    description?: string;
+    fullDescription?: string;
+    price?: number;
+    type?: 'pdf' | 'video' | 'workbook';
+    category?: string;
+    image?: string;
+    fileUrl?: string;
+    featured?: boolean;
+    tags?: string[];
+  }) {
+    return this.request(`/products/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(productData),
+    });
+  }
+
+  async deleteProduct(id: string) {
+    return this.request(`/products/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async restoreProduct(id: string) {
+    return this.request(`/products/${id}/restore`, {
+      method: 'PATCH',
+    });
+  }
+
+  // User management methods
+  async getUsers(params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    role?: string;
+    search?: string;
+    startDate?: string;
+    endDate?: string;
+    sortBy?: string;
+    sortOrder?: string;
+  }) {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    return this.request(`/users?${queryParams.toString()}`);
+  }
+
+  async getUserById(id: string) {
+    return this.request(`/users/${id}`);
+  }
+
+  async updateUserStatus(id: string, status: 'active' | 'inactive' | 'suspended' | 'banned') {
+    return this.request(`/users/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async updateUserRole(id: string, role: 'user' | 'admin') {
+    return this.request(`/users/${id}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role }),
+    });
+  }
+
+  async getUserAnalytics() {
+    return this.request('/users/analytics');
+  }
+
+  async deleteUser(id: string) {
+    return this.request(`/users/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async restoreUser(id: string) {
+    return this.request(`/users/${id}/restore`, {
+      method: 'PATCH',
+    });
+  }
+
+  // Activity tracking methods
+  async trackActivity(activityData: {
+    userId?: string | null;
+    sessionId: string;
+    activityType: string;
+    activityData?: any;
+    deviceInfo?: any;
+    location?: any;
+    conversionValue?: number;
+    conversionType?: string;
+    funnelStage?: string;
+  }) {
+    return this.request('/activities/track', {
+      method: 'POST',
+      body: JSON.stringify(activityData),
+    });
+  }
+
+  async getActivityAnalytics(params?: {
+    userId?: string;
+    days?: number;
+    activityType?: string;
+    funnelStage?: string;
+  }) {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    return this.request(`/activities/analytics?${queryParams.toString()}`);
+  }
+
+  async getConversionFunnel(days?: number) {
+    const queryParams = new URLSearchParams();
+    if (days) {
+      queryParams.append('days', days.toString());
+    }
+    return this.request(`/activities/funnel?${queryParams.toString()}`);
+  }
+
+  async getUserJourney(params?: {
+    userId?: string;
+    sessionId?: string;
+    days?: number;
+  }) {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    return this.request(`/activities/journey?${queryParams.toString()}`);
+  }
+
+  async getRealTimeActivity(limit?: number) {
+    const queryParams = new URLSearchParams();
+    if (limit) {
+      queryParams.append('limit', limit.toString());
+    }
+    return this.request(`/activities/realtime?${queryParams.toString()}`);
+  }
+
+  async getEngagementMetrics(days?: number) {
+    const queryParams = new URLSearchParams();
+    if (days) {
+      queryParams.append('days', days.toString());
+    }
+    return this.request(`/activities/engagement?${queryParams.toString()}`);
   }
 
   // Utility methods

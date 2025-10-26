@@ -1,4 +1,4 @@
-import { ShoppingCart, Menu, X, Search, User } from "lucide-react";
+import { ShoppingCart, Menu, X, Search, User, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +11,7 @@ import { useState } from "react";
 export const Header = () => {
   const navigate = useNavigate();
   const { cartCount } = useCart();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -84,6 +84,17 @@ export const Header = () => {
               <span className="hidden sm:inline text-sm text-muted-foreground">
                 Welcome, {user?.firstName}
               </span>
+              {isAdmin && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate("/admin")}
+                  className="hidden sm:flex"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Admin
+                </Button>
+              )}
               <Button variant="ghost" size="sm" onClick={logout}>
                 Logout
               </Button>
@@ -171,6 +182,17 @@ export const Header = () => {
                   <p className="text-sm text-muted-foreground">
                     Welcome, {user?.firstName}
                   </p>
+                  {isAdmin && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => { navigate("/admin"); closeMobileMenu(); }}
+                      className="w-full"
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Admin Dashboard
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"

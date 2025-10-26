@@ -23,10 +23,10 @@ export const LeadMagnetPopup = () => {
       return;
     }
 
-    // Show popup after 30 seconds
+    // Show popup after 2 minutes
     const timer = setTimeout(() => {
       setIsOpen(true);
-    }, 30000);
+    }, 120000);
 
     return () => clearTimeout(timer);
   }, [isAuthenticated]);

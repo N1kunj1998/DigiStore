@@ -6,9 +6,12 @@ const {
   createProduct, 
   updateProduct, 
   deleteProduct,
+  restoreProduct,
+  getAdminProducts,
   searchProducts 
 } = require('../controllers/productController');
 const { authenticate } = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 const { validateRequest } = require('../middleware/validateRequest');
 
 const router = express.Router();
@@ -80,9 +83,13 @@ const searchValidation = [
 router.get('/', searchValidation, validateRequest, getProducts);
 router.get('/search', searchValidation, validateRequest, searchProducts);
 router.get('/:id', getProduct);
-router.post('/', authenticate, productValidation, validateRequest, createProduct);
-router.put('/:id', authenticate, productValidation, validateRequest, updateProduct);
-router.delete('/:id', authenticate, deleteProduct);
+
+// Admin routes
+router.get('/admin/all', authenticate, adminAuth, getAdminProducts);
+router.post('/', authenticate, adminAuth, productValidation, validateRequest, createProduct);
+router.put('/:id', authenticate, adminAuth, productValidation, validateRequest, updateProduct);
+router.delete('/:id', authenticate, adminAuth, deleteProduct);
+router.patch('/:id/restore', authenticate, adminAuth, restoreProduct);
 
 module.exports = router;
 

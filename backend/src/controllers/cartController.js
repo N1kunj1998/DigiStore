@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const { v4: uuidv4 } = require('uuid');
 
 // In-memory cart storage (in production, you might want to use Redis)
 const userCarts = new Map();
@@ -66,6 +67,7 @@ const addToCart = async (req, res) => {
     } else {
       // Add new item to cart
       cart.push({
+        id: uuidv4(), // Generate unique ID for cart item
         productId,
         title: product.title,
         price: product.price,
@@ -103,7 +105,7 @@ const updateCartItem = async (req, res) => {
     const userId = req.user._id.toString();
 
     const cart = userCarts.get(userId) || [];
-    const itemIndex = cart.findIndex(item => item.productId === itemId);
+    const itemIndex = cart.findIndex(item => item.id === itemId);
 
     if (itemIndex === -1) {
       return res.status(404).json({
@@ -146,7 +148,7 @@ const removeFromCart = async (req, res) => {
     const userId = req.user._id.toString();
 
     const cart = userCarts.get(userId) || [];
-    const filteredCart = cart.filter(item => item.productId !== itemId);
+    const filteredCart = cart.filter(item => item.id !== itemId);
 
     userCarts.set(userId, filteredCart);
 

@@ -123,7 +123,19 @@ const ProductDetail = () => {
           {/* Product Image */}
           <div className="space-y-4">
             <div className="aspect-[4/3] bg-muted rounded-lg overflow-hidden">
-              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary-glow/20 flex items-center justify-center">
+              {product.image ? (
+                <img 
+                  src={product.image} 
+                  alt={product.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to icon if image fails to load
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+              ) : null}
+              <div className={`w-full h-full bg-gradient-to-br from-primary/20 to-primary-glow/20 flex items-center justify-center ${product.image ? 'hidden' : ''}`}>
                 {getIcon()}
               </div>
             </div>

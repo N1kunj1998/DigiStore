@@ -47,6 +47,7 @@ const register = async (req, res) => {
           firstName: user.firstName,
           lastName: user.lastName,
           isActive: user.isActive,
+          role: user.role,
           createdAt: user.createdAt
         },
         token
@@ -93,8 +94,11 @@ const login = async (req, res) => {
       });
     }
 
-    // Update last login
+    // Update login tracking
     user.lastLogin = new Date();
+    user.loginCount = (user.loginCount || 0) + 1;
+    user.lastActivity = new Date();
+    user.status = 'active'; // Ensure user is marked as active on login
     await user.save();
 
     // Generate token
@@ -110,6 +114,7 @@ const login = async (req, res) => {
           firstName: user.firstName,
           lastName: user.lastName,
           isActive: user.isActive,
+          role: user.role,
           lastLogin: user.lastLogin,
           createdAt: user.createdAt
         },
@@ -139,6 +144,7 @@ const getProfile = async (req, res) => {
           firstName: user.firstName,
           lastName: user.lastName,
           isActive: user.isActive,
+          role: user.role,
           lastLogin: user.lastLogin,
           createdAt: user.createdAt
         }
@@ -187,6 +193,7 @@ const updateProfile = async (req, res) => {
           firstName: updatedUser.firstName,
           lastName: updatedUser.lastName,
           isActive: updatedUser.isActive,
+          role: updatedUser.role,
           lastLogin: updatedUser.lastLogin,
           createdAt: updatedUser.createdAt,
           updatedAt: updatedUser.updatedAt

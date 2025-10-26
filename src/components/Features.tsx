@@ -4,32 +4,32 @@ const features = [
   {
     icon: Download,
     title: "Instant Access",
-    description: "Get immediate access to all your digital products after purchase. No waiting, no delays."
+    description: "Immediate access to premium digital resources upon purchase. Streamlined delivery for maximum efficiency."
   },
   {
     icon: Clock,
-    title: "Lifetime Updates",
-    description: "Receive free updates and improvements to your products for life. Your investment grows with you."
+    title: "Continuous Updates",
+    description: "Regular content updates and enhancements ensure your resources remain current and valuable."
   },
   {
     icon: Shield,
-    title: "Secure & Safe",
-    description: "Your payment information is protected with bank-level security. Shop with confidence."
+    title: "Enterprise Security",
+    description: "Bank-grade security protocols protect your data and transactions with industry-leading encryption."
   },
   {
     icon: Smartphone,
-    title: "Mobile Friendly",
-    description: "Access your content anywhere, anytime. All products are optimized for mobile devices."
+    title: "Multi-Platform Access",
+    description: "Seamless access across all devices with responsive design optimized for professional workflows."
   },
   {
     icon: Star,
-    title: "Premium Quality",
-    description: "Carefully curated content from industry experts. Quality you can trust and rely on."
+    title: "Expert-Curated Content",
+    description: "Professionally curated resources from industry leaders and subject matter experts."
   },
   {
     icon: Users,
-    title: "Community Support",
-    description: "Join our community of learners and get support from fellow students and instructors."
+    title: "Professional Network",
+    description: "Connect with like-minded professionals and access exclusive networking opportunities."
   }
 ];
 
@@ -38,9 +38,9 @@ export const Features = () => {
     <section className="py-20 bg-background">
       <div className="container">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Why Choose DigiStore?</h2>
+          <h2 className="text-3xl font-bold mb-4">Why Choose Our Platform?</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            We're committed to providing the best digital learning experience with features that matter to you.
+            We deliver enterprise-grade digital learning solutions with features designed for professional success and continuous growth.
           </p>
         </div>
         
