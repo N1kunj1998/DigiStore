@@ -9,6 +9,13 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  preview: {
+    host: true, // Allow all hosts for production deployment
+    port: process.env.PORT ? parseInt(process.env.PORT) : 4173,
+    strictPort: false,
+    cors: true,
+    allowedHosts: ["digistore-frontend.onrender.com"],
+  },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {

@@ -1,0 +1,25 @@
+# Render deployment configuration for DigiStore Frontend
+# Option 1: Static Site (Recommended - Free tier available)
+services:
+  - type: web
+    name: digistore-frontend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_API_URL
+        value: https://your-backend-url.onrender.com/api  # Replace with your actual backend URL
+    staticPublishPath: ./dist
+
+# Alternative: Static Site configuration (even simpler, no start command needed)
+# Uncomment below and comment above if you prefer static site deployment
+# services:
+#   - type: static
+#     name: digistore-frontend
+#     buildCommand: npm install && npm run build
+#     publishPath: dist
+#     envVars:
+#       - key: VITE_API_URL
+#         value: https://your-backend-url.onrender.com/api  # Replace with your actual backend URL
